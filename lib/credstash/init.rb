@@ -8,9 +8,12 @@ module Credstash
     # Your code goes here...
     def init!
       usage! unless profile_name && region && users.any?
-      %w(production staging development).each do |env|
+      %w(production staging development global).each do |env|
         ensure_kms_key_exists env
         run_credstash_setup env
+        next if env == 'global'
+        ensure_kms_key_exists "#{env}-releases"
+        run_credstash_setup "#{env}-releases"
       end
     end
 
